@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { exchange, isAllowed, readIdToken } from '../_lib/google';
+import { exchange, isAllowed, readIdToken } from '../_lib/google.js';
 import {
   SESSION_COOKIE,
   SESSION_MAX_AGE,
@@ -10,7 +10,7 @@ import {
   redirect,
   seal,
   setCookie,
-} from '../_lib/session';
+} from '../_lib/session.js';
 
 const fail = (req: IncomingMessage, res: ServerResponse, reason: string) => {
   clearCookie(req, res, STATE_COOKIE);

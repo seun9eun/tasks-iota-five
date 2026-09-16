@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { exchange } from './_lib/google';
-import { SESSION_COOKIE, clearCookie, readSession, sendJson } from './_lib/session';
+import { exchange } from './_lib/google.js';
+import { SESSION_COOKIE, clearCookie, readSession, sendJson } from './_lib/session.js';
 
 /**
  * Hands the browser a short-lived Google API access token. The refresh token

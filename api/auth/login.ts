@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { AUTH_ENDPOINT, SCOPES } from '../_lib/google';
-import { STATE_COOKIE, baseUrl, redirect, requireEnv, setCookie } from '../_lib/session';
+import { AUTH_ENDPOINT, SCOPES } from '../_lib/google.js';
+import { STATE_COOKIE, baseUrl, redirect, requireEnv, setCookie } from '../_lib/session.js';
 
 export default function handler(req: IncomingMessage, res: ServerResponse) {
   const state = crypto.randomBytes(16).toString('base64url');

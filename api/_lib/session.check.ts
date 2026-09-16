@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { Session, readCookie, seal, setCookie, unseal } from './session';
+import { Session, readCookie, seal, setCookie, unseal } from './session.js';
 
 // Run with: npx tsx api/_lib/session.check.ts
 // The session cookie is the only thing standing between a public URL and the

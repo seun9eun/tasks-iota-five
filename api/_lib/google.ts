@@ -1,4 +1,4 @@
-import { requireEnv } from './session';
+import { requireEnv } from './session.js';
 
 export const SCOPES = [
   'openid',
