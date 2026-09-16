@@ -104,13 +104,26 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 
       const token = await new Promise<string | null>((resolve) => {
         // GIS can stay silent on some failures, so never wait forever.
-        const timer = setTimeout(() => resolve(null), 15000);
+        const timer = setTimeout(() => {
+          console.warn('Silent token refresh timed out after 15s.');
+          resolve(null);
+        }, 15000);
         const finish = (value: string | null) => {
           clearTimeout(timer);
           resolve(value);
         };
-        tokenClient.callback = (res: any) => finish(res?.access_token ?? null);
-        tokenClient.error_callback = () => finish(null);
+        tokenClient.callback = (res: any) => {
+          if (!res?.access_token) {
+            // Falling back to the demo mode without a reason is impossible to
+            // debug, so say what Google sent back.
+            console.warn('Silent token refresh returned no token:', res);
+          }
+          finish(res?.access_token ?? null);
+        };
+        tokenClient.error_callback = (err: any) => {
+          console.warn('Silent token refresh rejected:', err?.type, err?.message, err);
+          finish(null);
+        };
         tokenClient.requestAccessToken({
           prompt: '',
           hint: getSavedUser()?.email ?? undefined,
