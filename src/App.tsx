@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AuthUser, GoogleTask, GoogleTaskList, GoogleCalendarEvent, GoogleCalendarListEntry, QuickShortcut } from './types';
 import { DEFAULT_SHORTCUTS } from './components/QuickShortcuts';
-import { initAuth, googleSignIn, logout, clearStoredAuth } from './lib/firebase';
+import { initAuth, googleSignIn, logout, clearStoredAuth } from './lib/auth';
 import {
   fetchTaskLists,
   fetchTasks,
@@ -289,23 +289,27 @@ export default function App() {
     return () => unsubscribe();
   }, [loadGoogleData]);
 
+  // The OAuth callback reports a rejected sign-in through the URL; show it
+  // rather than dropping the user back into demo mode with no explanation.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get('auth_error');
+    if (!authError) return;
+    showToast(
+      authError === 'not_allowed'
+        ? '허용되지 않은 계정입니다. 등록된 구글 계정으로 로그인해 주세요.'
+        : `구글 계정 연동에 실패했습니다. (${authError})`,
+      'error'
+    );
+    window.history.replaceState(null, '', window.location.pathname);
+  }, []);
+
   // Auth Actions
-  const handleSignIn = async () => {
-    try {
-      setIsSyncing(true);
-      const res = await googleSignIn();
-      if (res) {
-        setUser(res.user);
-        setIsAuthenticated(true);
-        setAccessToken(res.accessToken);
-        await loadGoogleData(res.accessToken);
-      }
-    } catch (err: any) {
-      console.error('Sign in failed:', err);
-      showToast('구글 계정 연동에 실패했습니다.', 'error');
-    } finally {
-      setIsSyncing(false);
-    }
+  const handleSignIn = () => {
+    // Leaves the page for Google's consent screen and comes back to "/" with a
+    // session cookie, where initAuth picks the session up.
+    setIsSyncing(true);
+    googleSignIn();
   };
 
   const handleSignOut = async () => {

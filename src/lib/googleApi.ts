@@ -1,5 +1,5 @@
 import { GoogleTask, GoogleTaskList, GoogleCalendarEvent, GoogleCalendarListEntry } from '../types';
-import { getAccessToken, refreshAccessToken } from './firebase';
+import { getAccessToken, refreshAccessToken } from './auth';
 
 // ==========================================
 // Safe Fetch Helper with Timeout & CORS/Network Error Handling
