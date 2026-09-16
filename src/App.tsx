@@ -38,9 +38,10 @@ export default function App() {
   const [activeMobileTab, setActiveMobileTab] = useState<'tasks' | 'calendar'>('tasks');
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // ponytail: this holds the token from sign-in only. After a silent refresh it
-  // goes stale, but safeFetch swaps in the current token on 401, so requests
-  // still succeed. Lift the token into a context if more call sites need it.
+  // ponytail: this holds the token from sign-in only and is really just a
+  // "signed in with Google" flag — safeFetch substitutes the current stored
+  // token on every request. Lift the token into a context if anything ever
+  // needs to read its actual value here.
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 

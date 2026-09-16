@@ -1,11 +1,23 @@
 import { GoogleTask, GoogleTaskList, GoogleCalendarEvent, GoogleCalendarListEntry } from '../types';
-import { refreshAccessToken } from './firebase';
+import { getAccessToken, refreshAccessToken } from './firebase';
 
 // ==========================================
 // Safe Fetch Helper with Timeout & CORS/Network Error Handling
 // ==========================================
 
 async function safeFetch(url: string, options?: RequestInit, isRetry = false): Promise<Response> {
+  // Callers capture the token when the user signs in, so a silent refresh later
+  // leaves them holding a stale one. Send the stored token instead, or every
+  // request burns a 401 and a fresh GIS grant before it succeeds.
+  if (!isRetry) {
+    const currentToken = getAccessToken();
+    const headers = new Headers(options?.headers);
+    if (currentToken && headers.has('Authorization')) {
+      headers.set('Authorization', `Bearer ${currentToken}`);
+      options = { ...options, headers };
+    }
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12000);
   let res: Response;
