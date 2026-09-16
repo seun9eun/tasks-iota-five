@@ -1,0 +1,6 @@
+{
+  "name": "Google Tasks & Calendar Dashboard",
+  "description": "A dashboard integrating Google Tasks and Google Calendar with drag-and-drop task scheduling, task management, and full calendar view.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
