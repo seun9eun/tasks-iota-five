@@ -6,6 +6,14 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Once installed you already know which app you opened, so the logo and name
+   give their row back to the content. */
+@media (display-mode: standalone) {
+  .app-title {
+    display: none;
+  }
+}
+
 /* FullCalendar Responsive Styles */
 .fc {
   font-family: inherit;

@@ -25,9 +25,9 @@ export const Header: React.FC<HeaderProps> = ({
   onRefresh,
 }) => {
   return (
-    <header className="bg-white border-b border-slate-200/80 px-4 sm:px-6 py-2.5 sm:py-3.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-xs z-20">
+    <header className="bg-white border-b border-slate-200/80 px-4 sm:px-6 py-2 sm:py-3.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-xs z-20">
       {/* Title & Logo */}
-      <div className="flex items-center gap-2.5 sm:gap-3">
+      <div className="app-title flex items-center gap-2.5 sm:gap-3">
         <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 shrink-0">
           <div className="relative">
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />

@@ -846,7 +846,7 @@ export default function App() {
           />
 
           {/* Bento Metric Card 2: Daily Goal Completion */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-3 sm:p-4 flex flex-col justify-between hover:shadow-xs transition">
+          <div className="sm:bg-white sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-2xs sm:p-4 flex flex-col justify-between sm:hover:shadow-xs transition">
             <div className="flex items-center justify-between mb-1 gap-1">
               <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
                 <Target className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -869,7 +869,7 @@ export default function App() {
                 )}
               </span>
             </div>
-            <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
+            <div className="w-full bg-slate-200/70 sm:bg-slate-100 h-1 sm:h-2 rounded-full mt-2 overflow-hidden">
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${todayCompletionPercentage}%` }}
@@ -878,7 +878,7 @@ export default function App() {
           </div>
 
           {/* Bento Metric Card 3: Monthly Goal Completion */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-3 sm:p-4 flex flex-col justify-between hover:shadow-xs transition">
+          <div className="sm:bg-white sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-2xs sm:p-4 flex flex-col justify-between sm:hover:shadow-xs transition">
             <div className="flex items-center justify-between mb-1 gap-1">
               <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
                 <CalendarIcon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
@@ -901,7 +901,7 @@ export default function App() {
                 )}
               </span>
             </div>
-            <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
+            <div className="w-full bg-slate-200/70 sm:bg-slate-100 h-1 sm:h-2 rounded-full mt-2 overflow-hidden">
               <div
                 className="bg-indigo-600 h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${monthlyCompletionPercentage}%` }}
@@ -933,7 +933,6 @@ export default function App() {
               onDeleteTaskClick={handleDeleteTaskClick}
               onTaskDurationChange={handleTaskDurationChange}
               onScheduleTaskQuickly={handleScheduleTaskQuickly}
-              onOpenPrefixManager={() => setPrefixModalOpen(true)}
             />
           </div>
 

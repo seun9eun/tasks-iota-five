@@ -276,7 +276,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
         data-id={task.id}
         data-title={task.title}
         data-duration={durationMins}
-        className={`fc-event-item group relative bg-white hover:bg-slate-50/80 border rounded-2xl p-3 transition shadow-2xs hover:shadow-xs flex flex-col gap-2 ${
+        className={`fc-event-item group relative bg-white hover:bg-slate-50/80 border rounded-xl md:rounded-2xl p-2.5 md:p-3 transition md:shadow-2xs md:hover:shadow-xs flex flex-col gap-2 ${
           isCompleted
             ? 'border-slate-200 opacity-60 bg-slate-50/50'
             : isOverdueSection
@@ -294,12 +294,12 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
           {!isCompleted ? (
             <div
               title="캘린더로 드래그하여 시간 배치"
-              className="cursor-grab active:cursor-grabbing p-1 text-slate-300 hover:text-blue-600 rounded-md hover:bg-blue-50 shrink-0 mt-0.5 transition"
+              className="hidden md:block cursor-grab active:cursor-grabbing p-1 text-slate-300 hover:text-blue-600 rounded-md hover:bg-blue-50 shrink-0 mt-0.5 transition"
             >
               <GripVertical className="w-4 h-4" />
             </div>
           ) : (
-            <div className="w-5 shrink-0" />
+            <div className="hidden md:block w-5 shrink-0" />
           )}
 
           {/* Completion Toggle Button */}
@@ -332,9 +332,9 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
         </div>
 
         {/* Bottom Row: Duration selector & Actions */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+        <div className="flex items-center justify-end md:justify-between gap-1.5 md:pt-2 md:border-t md:border-slate-100 text-[11px] text-slate-500">
           {/* Scheduled Duration dropdown */}
-          <div className="flex items-center gap-1 bg-slate-100/80 px-2 py-0.5 rounded-lg">
+          <div className="hidden md:flex items-center gap-1 bg-slate-100/80 px-2 py-0.5 rounded-lg">
             <Clock className="w-3 h-3 text-slate-400" />
             <select
               value={durationMins}
@@ -383,16 +383,16 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
   };
 
   return (
-    <aside className="w-full md:w-80 lg:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col shrink-0 md:h-full md:overflow-hidden">
+    <aside className="w-full md:w-80 lg:w-96 md:bg-white md:rounded-2xl md:border md:border-slate-200 md:shadow-2xs flex flex-col shrink-0 md:h-full md:overflow-hidden">
       {/* Header & List Selector */}
-      <div className="p-3 md:p-4 border-b border-slate-100 bg-slate-50/60 md:shrink-0">
+      <div className="pb-3 md:p-4 md:border-b md:border-slate-100 md:bg-slate-50/60 md:shrink-0">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-blue-600 text-white rounded-xl shadow-2xs">
+            <div className="hidden md:block p-1.5 bg-blue-600 text-white rounded-xl shadow-2xs">
               <CheckSquare className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-bold text-slate-800 text-base leading-tight">이번 주 할 일</h2>
+              <h2 className="font-bold text-slate-800 text-sm md:text-base leading-tight">이번 주 할 일</h2>
               <span className="text-[11px] font-semibold text-blue-600">{weekRangeFormatted}</span>
             </div>
           </div>
@@ -532,7 +532,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
       {/* Task Item List Container */}
       <div
         ref={draggableContainerRef}
-        className="flex-1 md:overflow-y-auto p-3 md:p-3.5 space-y-3"
+        className="flex-1 md:overflow-y-auto py-1 md:p-3.5 space-y-3"
       >
         {filter === 'today' ? (
           filteredTodayTasks.length === 0 && filteredOverdueTasks.length === 0 ? (

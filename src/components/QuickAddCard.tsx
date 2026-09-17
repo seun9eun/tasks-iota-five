@@ -36,10 +36,12 @@ export const QuickAddCard: React.FC<QuickAddCardProps> = ({
     setTitle('');
   };
 
+  // On a phone this is one input line on the page ground; from sm: up it becomes
+  // the blue tile that anchors the top row of the dashboard.
   return (
-    <div className="col-span-2 sm:col-span-1 bg-blue-600 rounded-2xl p-3 sm:p-4 text-white flex flex-col justify-between shadow-md shadow-blue-600/15 hover:shadow-lg transition">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-[11px] sm:text-xs font-bold text-blue-100 uppercase tracking-wider flex items-center gap-1.5">
+    <div className="col-span-2 sm:col-span-1 sm:bg-blue-600 sm:rounded-2xl sm:p-4 sm:text-white sm:shadow-md sm:shadow-blue-600/15 sm:hover:shadow-lg flex flex-col justify-between transition">
+      <div className="hidden sm:flex items-center justify-between mb-1">
+        <span className="text-xs font-bold text-blue-100 uppercase tracking-wider flex items-center gap-1.5">
           <PlusCircle className="w-3.5 h-3.5 text-blue-200" />
           빠른 등록
         </span>
@@ -54,11 +56,12 @@ export const QuickAddCard: React.FC<QuickAddCardProps> = ({
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-1 sm:mt-1.5 flex items-center gap-1.5">
+      <form onSubmit={handleSubmit} className="sm:mt-1.5 flex items-center gap-1.5">
         <select
           value={prefix}
           onChange={(e) => setPrefix(e.target.value)}
-          className="text-xs font-extrabold bg-blue-700/90 text-white border border-blue-400/50 rounded-xl px-2 py-1.5 focus:outline-none focus:bg-blue-800 cursor-pointer shrink-0 max-w-[100px] truncate"
+          className="text-xs font-extrabold rounded-xl px-2 py-2 sm:py-1.5 focus:outline-none cursor-pointer shrink-0 max-w-[92px] sm:max-w-[100px] truncate bg-white border border-slate-200 text-blue-800 sm:bg-blue-700/90 sm:text-white sm:border-blue-400/50 sm:focus:bg-blue-800"
+          aria-label="어두 선택"
         >
           <option value="" className="text-slate-800 font-semibold bg-white">
             선택 안함
@@ -71,14 +74,22 @@ export const QuickAddCard: React.FC<QuickAddCardProps> = ({
         </select>
         <input
           type="text"
-          placeholder="새 할 일 빠르게 입력... (Enter)"
+          placeholder="새 할 일 입력... (Enter)"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 min-w-0 bg-blue-700/60 border border-blue-400/40 rounded-xl px-2.5 py-1.5 text-xs font-medium text-white placeholder-blue-200/80 focus:outline-none focus:bg-blue-700 focus:border-white transition shadow-inner"
+          className="flex-1 min-w-0 rounded-xl px-2.5 py-2 sm:py-1.5 text-xs font-medium transition bg-white border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 sm:bg-blue-700/60 sm:border-blue-400/40 sm:text-white sm:placeholder-blue-200/80 sm:focus:bg-blue-700 sm:focus:border-white sm:shadow-inner"
         />
+        <button
+          type="button"
+          onClick={onOpenPrefixManager}
+          className="sm:hidden shrink-0 p-2 rounded-xl bg-white border border-slate-200 text-slate-500 active:bg-slate-100 transition"
+          title="어두 설정"
+        >
+          <Settings className="w-3.5 h-3.5" />
+        </button>
       </form>
 
-      <div className="text-[10px] text-blue-200/80 mt-1 flex items-center justify-between">
+      <div className="hidden sm:flex text-[10px] text-blue-200/80 mt-1 items-center justify-between">
         <span>오늘 마감 할 일로 빠르게 추가됩니다</span>
       </div>
     </div>
