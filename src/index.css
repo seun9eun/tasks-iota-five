@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Installed to the home screen the page owns the whole display, so keep the
+   bottom row of controls clear of the iPhone home indicator. */
+body {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* FullCalendar Responsive Styles */
 .fc {
   font-family: inherit;
