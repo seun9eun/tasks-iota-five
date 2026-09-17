@@ -7,6 +7,7 @@ interface EventModalProps {
   event: GoogleCalendarEvent | null; // null for new event
   initialStartISO?: string;
   initialEndISO?: string;
+  initialSummary?: string;
   calendars?: GoogleCalendarListEntry[];
   onClose: () => void;
   onSave: (eventData: {
@@ -25,6 +26,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   event,
   initialStartISO,
   initialEndISO,
+  initialSummary,
   calendars = [],
   onClose,
   onSave,
@@ -36,6 +38,16 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [startDateTime, setStartDateTime] = useState('');
   const [endDateTime, setEndDateTime] = useState('');
   const [selectedCalId, setSelectedCalId] = useState('primary');
+
+  // Read-only calendars (holidays, subscribed feeds) reject event creation, so keep them out of the picker.
+  const writableCalendars = calendars.filter(
+    (c) => c.accessRole !== 'reader' && c.accessRole !== 'freeBusyReader'
+  );
+  const defaultCalId =
+    writableCalendars.find((c) => c.primary)?.id ||
+    writableCalendars.find((c) => c.id === 'primary')?.id ||
+    writableCalendars[0]?.id ||
+    'primary';
 
   // Helper to format ISO to datetime-local input string (YYYY-MM-DDTHH:mm)
   const formatIsoForInput = (isoStr?: string) => {
@@ -60,16 +72,16 @@ export const EventModal: React.FC<EventModalProps> = ({
       setEndDateTime(formatIsoForInput(event.end?.dateTime || event.end?.date));
       setSelectedCalId(event.calendarId || 'primary');
     } else {
-      setSummary('');
+      setSummary(initialSummary || '');
       setDescription('');
       setLocation('');
       setStartDateTime(formatIsoForInput(initialStartISO || new Date().toISOString()));
       
       const defaultEnd = initialEndISO || new Date(Date.now() + 3600000).toISOString();
       setEndDateTime(formatIsoForInput(defaultEnd));
-      setSelectedCalId(calendars.length > 0 ? calendars[0].id : 'primary');
+      setSelectedCalId(defaultCalId);
     }
-  }, [event, initialStartISO, initialEndISO, isOpen, calendars]);
+  }, [event, initialStartISO, initialEndISO, initialSummary, isOpen, defaultCalId]);
 
   if (!isOpen) return null;
 
@@ -90,7 +102,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
@@ -127,7 +139,7 @@ export const EventModal: React.FC<EventModalProps> = ({
             </div>
 
             {/* Calendar Selector Dropdown */}
-            {calendars.length > 0 && (
+            {writableCalendars.length > 0 && (
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
                   <Layers className="w-3.5 h-3.5 text-slate-500" /> 등록할 캘린더 선택
@@ -137,7 +149,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   onChange={(e) => setSelectedCalId(e.target.value)}
                   className="w-full text-xs font-medium px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                 >
-                  {calendars.map((cal) => (
+                  {writableCalendars.map((cal) => (
                     <option key={cal.id} value={cal.id}>
                       {cal.summary} {cal.primary ? '(기본 캘린더)' : ''}
                     </option>

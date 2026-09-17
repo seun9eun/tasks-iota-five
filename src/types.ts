@@ -28,6 +28,8 @@ export interface GoogleCalendarListEntry {
   summary: string;
   description?: string;
   primary?: boolean;
+  /** Google calendarList accessRole: owner | writer | reader | freeBusyReader. */
+  accessRole?: string;
   backgroundColor?: string;
   foregroundColor?: string;
   selected?: boolean;

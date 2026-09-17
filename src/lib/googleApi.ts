@@ -253,6 +253,7 @@ export async function fetchCalendarList(token: string): Promise<GoogleCalendarLi
     summary: item.summary || '기본 캘린더',
     description: item.description,
     primary: !!item.primary,
+    accessRole: item.accessRole,
     backgroundColor: item.backgroundColor || '#3b82f6',
     foregroundColor: item.foregroundColor || '#ffffff',
     selected: item.selected !== false,

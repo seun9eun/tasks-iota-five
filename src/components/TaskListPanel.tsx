@@ -10,7 +10,6 @@ import {
   getKoreaThisWeekRange,
   buildTaskScheduleLookup,
 } from '../utils/dateUtils';
-import { TaskListQuickAdd } from './TaskListQuickAdd';
 import {
   CheckSquare,
   Square,
@@ -26,8 +25,6 @@ import {
   AlertCircle,
   CalendarDays,
   Tag,
-  Settings,
-  Zap,
   CalendarRange,
   ListTodo,
 } from 'lucide-react';
@@ -41,12 +38,10 @@ interface TaskListPanelProps {
   onSelectListId: (id: string) => void;
   onToggleComplete: (task: GoogleTask) => void;
   onAddTaskClick: () => void;
-  onQuickAddTask: (taskData: { title: string; notes?: string; due?: string }) => void;
   onEditTaskClick: (task: GoogleTask) => void;
   onDeleteTaskClick: (task: GoogleTask) => void;
   onTaskDurationChange: (taskId: string, minutes: number) => void;
   onScheduleTaskQuickly?: (task: GoogleTask) => void;
-  onOpenPrefixManager: () => void;
 }
 
 export const TaskListPanel: React.FC<TaskListPanelProps> = ({
@@ -58,12 +53,10 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
   onSelectListId,
   onToggleComplete,
   onAddTaskClick,
-  onQuickAddTask,
   onEditTaskClick,
   onDeleteTaskClick,
   onTaskDurationChange,
   onScheduleTaskQuickly,
-  onOpenPrefixManager,
 }) => {
   const [filter, setFilter] = useState<'today' | 'active' | 'week'>('today');
   const [searchQuery, setSearchQuery] = useState('');
@@ -362,7 +355,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
                 type="button"
                 onClick={() => onScheduleTaskQuickly(task)}
                 className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/80 rounded-lg transition cursor-pointer active:scale-95 shrink-0"
-                title="캘린더에 일정 등록"
+                title="날짜·시간을 정해 캘린더에 등록"
               >
                 <CalendarIcon className="w-3 h-3 text-blue-600" />
                 <span>캘린더 등록</span>
@@ -390,9 +383,9 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
   };
 
   return (
-    <aside className="w-full md:w-80 lg:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col shrink-0 h-full overflow-hidden">
+    <aside className="w-full md:w-80 lg:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col shrink-0 md:h-full md:overflow-hidden">
       {/* Header & List Selector */}
-      <div className="p-4 border-b border-slate-100 bg-slate-50/60">
+      <div className="p-3 md:p-4 border-b border-slate-100 bg-slate-50/60 md:shrink-0">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-blue-600 text-white rounded-xl shadow-2xs">
@@ -435,33 +428,10 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
           </div>
         )}
 
-        {/* QUICK ADD TASK BAR WITH PREFIX DROPDOWN (Isolated component for smooth keystroke input) */}
-        <div className="my-3 p-2 bg-gradient-to-r from-blue-50/90 to-indigo-50/90 border border-blue-200/80 rounded-2xl shadow-2xs flex flex-col gap-1.5">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-bold text-blue-900 flex items-center gap-1">
-              <Zap className="w-3 h-3 text-blue-600 fill-blue-500" />
-              빠른 할 일 등록
-            </span>
-            <button
-              type="button"
-              onClick={onOpenPrefixManager}
-              className="inline-flex items-center gap-0.5 text-[10px] font-bold text-blue-700 hover:text-blue-900 hover:underline cursor-pointer"
-              title="어두 목록 수정/관리"
-            >
-              <Settings className="w-3 h-3" />
-              어두 설정
-            </button>
-          </div>
-
-          <TaskListQuickAdd
-            prefixes={prefixes}
-            onQuickAddTask={onQuickAddTask}
-          />
-        </div>
 
         {/* Progress Banner */}
         {filter === 'today' ? (
-          <div className="p-3 bg-blue-50/60 border border-blue-100 rounded-xl mb-2">
+          <div className="hidden md:block p-3 bg-blue-50/60 border border-blue-100 rounded-xl mb-2">
             <div className="flex items-center justify-between text-xs font-bold text-blue-900 mb-1">
               <span className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-blue-600" />오늘 달성 현황
@@ -479,7 +449,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
             </div>
           </div>
         ) : (
-          <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl mb-2">
+          <div className="hidden md:block p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl mb-2">
             <div className="flex items-center justify-between text-xs font-bold text-indigo-900 mb-1">
               <span className="flex items-center gap-1.5">
                 <CalendarRange className="w-3.5 h-3.5 text-indigo-600" />이번 주 달성 현황
@@ -549,7 +519,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
       </div>
 
       {/* Guide Banner */}
-      <div className="bg-slate-50 border-b border-slate-100 px-3.5 py-2 flex items-center justify-between text-[11px] text-slate-600">
+      <div className="hidden md:flex bg-slate-50 border-b border-slate-100 px-3.5 py-2 items-center justify-between text-[11px] text-slate-600">
         <span className="flex items-center gap-1.5">
           <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
           <span className="text-slate-600">드래그하여 오른쪽 캘린더에 일정 배치</span>
@@ -562,7 +532,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
       {/* Task Item List Container */}
       <div
         ref={draggableContainerRef}
-        className="flex-1 overflow-y-auto p-3.5 space-y-3"
+        className="flex-1 md:overflow-y-auto p-3 md:p-3.5 space-y-3"
       >
         {filter === 'today' ? (
           filteredTodayTasks.length === 0 && filteredOverdueTasks.length === 0 ? (

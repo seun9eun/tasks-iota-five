@@ -46,7 +46,7 @@ export const CalendarSelector: React.FC<CalendarSelectorProps> = ({
           <button
             type="button"
             onClick={allSelected ? onDeselectAll : onSelectAll}
-            className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:underline px-2 py-1 rounded-lg hover:bg-blue-50 transition cursor-pointer"
+            className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:underline px-2 py-1 rounded-lg hover:bg-blue-50 transition cursor-pointer whitespace-nowrap"
           >
             {allSelected ? '전체 해제' : '전체 선택'}
           </button>

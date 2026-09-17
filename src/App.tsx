@@ -25,6 +25,7 @@ import {
 import { Header } from './components/Header';
 import { TaskListPanel } from './components/TaskListPanel';
 import { CalendarView } from './components/CalendarView';
+import { MobileAgendaView } from './components/MobileAgendaView';
 import { CalendarSelector } from './components/CalendarSelector';
 import { TaskModal } from './components/TaskModal';
 import { EventModal } from './components/EventModal';
@@ -177,6 +178,8 @@ export default function App() {
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<GoogleCalendarEvent | null>(null);
   const [newEventStart, setNewEventStart] = useState<string>('');
+  // Task awaiting a date/time pick in EventModal; its id gets linked onto the created event.
+  const [schedulingTask, setSchedulingTask] = useState<GoogleTask | null>(null);
   const [newEventEnd, setNewEventEnd] = useState<string>('');
 
   const [confirmModalConfig, setConfirmModalConfig] = useState<{
@@ -587,12 +590,16 @@ export default function App() {
     } else {
       // Create
       const tempId = 'event-' + Date.now();
+      const linkedTaskId = schedulingTask?.id;
       const newEv: GoogleCalendarEvent = {
         id: tempId,
         ...eventData,
         calendarId: targetCalId,
         backgroundColor: targetCalInfo?.backgroundColor || '#3b82f6',
       };
+      if (linkedTaskId) {
+        (newEv as any).taskId = linkedTaskId;
+      }
 
       setCalendarEvents((prev) => [...prev, newEv]);
 
@@ -602,7 +609,12 @@ export default function App() {
           setCalendarEvents((prev) =>
             prev.map((ev) =>
               ev.id === tempId
-                ? { ...created, calendarId: targetCalId, backgroundColor: targetCalInfo?.backgroundColor }
+                ? {
+                    ...created,
+                    calendarId: targetCalId,
+                    backgroundColor: targetCalInfo?.backgroundColor,
+                    ...(linkedTaskId ? { taskId: linkedTaskId } : {}),
+                  }
                 : ev
             )
           );
@@ -683,14 +695,24 @@ export default function App() {
     }
   };
 
+  // Opens EventModal prefilled with the task, so the user picks the date/time before it is created.
   const handleScheduleTaskQuickly = useCallback((task: GoogleTask) => {
     const durationMins = task.durationMinutes || 60;
+    const todayYMD = getKoreaTodayYYYYMMDD();
+    const dueYMD = task.due ? getKoreaTodayYYYYMMDD(task.due) : todayYMD;
     const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0, 0);
+    const start =
+      dueYMD === todayYMD
+        ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0, 0)
+        : new Date(`${dueYMD}T09:00:00`);
     const end = new Date(start.getTime() + durationMins * 60 * 1000);
 
-    handleEventReceiveFromTask(task.title, start.toISOString(), end.toISOString(), task.id);
-  }, [calendarEvents, isAuthenticated, accessToken]);
+    setEditingEvent(null);
+    setSchedulingTask(task);
+    setNewEventStart(start.toISOString());
+    setNewEventEnd(end.toISOString());
+    setEventModalOpen(true);
+  }, []);
 
   // Calculations for Bento Stats (Memoized)
   const { totalTodayTaskCount, completedTodayTaskCount, todayCompletionPercentage } = useMemo(() => {
@@ -747,7 +769,7 @@ export default function App() {
   }, [calendarEvents, selectedCalendarIds]);
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col bg-[#F8FAFC] overflow-hidden font-sans select-none text-slate-900">
+    <div className="min-h-[100dvh] md:h-[100dvh] w-full flex flex-col bg-[#F8FAFC] overflow-y-auto md:overflow-hidden font-sans select-none text-slate-900">
       {/* Toast Notification Banner */}
       {toast && (
         <div className="fixed top-16 right-4 sm:right-6 z-50 animate-in slide-in-from-top-3 fade-in duration-200">
@@ -785,7 +807,7 @@ export default function App() {
       />
 
       {/* Bento Grid Main Container */}
-      <div className="flex-1 p-2.5 sm:p-4 overflow-hidden flex flex-col gap-2.5 sm:gap-4">
+      <div className="md:flex-1 md:min-h-0 p-2.5 sm:p-4 md:overflow-hidden flex flex-col gap-2.5 sm:gap-4">
         {/* Mobile View Navigation Tab Switcher (Shown only on < md screens) */}
         <div className="flex md:hidden items-center justify-between bg-white p-1 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0 text-xs font-bold">
           <button
@@ -815,7 +837,7 @@ export default function App() {
         </div>
 
         {/* Bento Top Metrics Bar: Quick Capture | Daily Goal | Monthly Goal */}
-        <div className="flex sm:grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 shrink-0 overflow-x-auto snap-x snap-mandatory pb-1 sm:pb-0 scrollbar-none">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 shrink-0">
           {/* Bento Metric Card 1: Quick Capture Input (Isolated component for smooth keystroke input) */}
           <QuickAddCard
             prefixes={prefixes}
@@ -824,17 +846,20 @@ export default function App() {
           />
 
           {/* Bento Metric Card 2: Daily Goal Completion */}
-          <div className="min-w-[260px] sm:min-w-0 snap-center shrink-0 sm:shrink bg-white rounded-2xl border border-slate-200 shadow-2xs p-3 sm:p-4 flex flex-col justify-between hover:shadow-xs transition">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-emerald-500" />
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-3 sm:p-4 flex flex-col justify-between hover:shadow-xs transition">
+            <div className="flex items-center justify-between mb-1 gap-1">
+              <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
+                <Target className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                 일간목표 달성률
               </span>
-              <span className="text-[10px] sm:text-xs font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+              <span className="hidden sm:inline text-xs font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 whitespace-nowrap">
                 {completedTodayTaskCount}/{totalTodayTaskCount} 완료
               </span>
             </div>
-            <div className="flex items-baseline justify-between mt-0.5 sm:mt-1">
+            <div className="flex items-baseline justify-between gap-1 mt-0.5 sm:mt-1">
+              <span className="sm:hidden order-2 text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 whitespace-nowrap">
+                {completedTodayTaskCount}/{totalTodayTaskCount}
+              </span>
               <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                 {todayCompletionPercentage}%
                 {todayCompletionPercentage === 100 && totalTodayTaskCount > 0 && (
@@ -853,17 +878,20 @@ export default function App() {
           </div>
 
           {/* Bento Metric Card 3: Monthly Goal Completion */}
-          <div className="min-w-[260px] sm:min-w-0 snap-center shrink-0 sm:shrink bg-white rounded-2xl border border-slate-200 shadow-2xs p-3 sm:p-4 flex flex-col justify-between hover:shadow-xs transition">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <CalendarIcon className="w-3.5 h-3.5 text-indigo-500" />
-                월간목표 달성률 ({new Date().getMonth() + 1}월)
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-3 sm:p-4 flex flex-col justify-between hover:shadow-xs transition">
+            <div className="flex items-center justify-between mb-1 gap-1">
+              <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
+                <CalendarIcon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                월간목표 ({new Date().getMonth() + 1}월)
               </span>
-              <span className="text-[10px] sm:text-xs font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+              <span className="hidden sm:inline text-xs font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 whitespace-nowrap">
                 {completedMonthlyTaskCount}/{totalMonthlyTaskCount} 완료
               </span>
             </div>
-            <div className="flex items-baseline justify-between mt-0.5 sm:mt-1">
+            <div className="flex items-baseline justify-between gap-1 mt-0.5 sm:mt-1">
+              <span className="sm:hidden order-2 text-[10px] font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 whitespace-nowrap">
+                {completedMonthlyTaskCount}/{totalMonthlyTaskCount}
+              </span>
               <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                 {monthlyCompletionPercentage}%
                 {monthlyCompletionPercentage === 100 && totalMonthlyTaskCount > 0 && (
@@ -883,9 +911,9 @@ export default function App() {
         </div>
 
         {/* Bento Dashboard Layout: Task List Panel + Calendar View */}
-        <div className="flex flex-1 gap-3 md:gap-4 overflow-hidden relative">
+        <div className="flex md:flex-1 md:min-h-0 gap-3 md:gap-4 md:overflow-hidden relative">
           {/* Left Sidebar: Google Tasks */}
-          <div className={`h-full w-full md:w-auto ${activeMobileTab === 'tasks' ? 'block' : 'hidden md:block'}`}>
+          <div className={`w-full md:h-full md:w-auto ${activeMobileTab === 'tasks' ? 'block' : 'hidden md:block'}`}>
             <TaskListPanel
               tasks={tasks}
               taskLists={taskLists}
@@ -898,7 +926,6 @@ export default function App() {
                 setEditingTask(null);
                 setTaskModalOpen(true);
               }}
-              onQuickAddTask={handleQuickAddTaskData}
               onEditTaskClick={(task) => {
                 setEditingTask(task);
                 setTaskModalOpen(true);
@@ -911,7 +938,7 @@ export default function App() {
           </div>
 
           {/* Right Area: Google Calendar */}
-          <div className={`flex-1 h-full w-full flex flex-col gap-2.5 sm:gap-3 min-w-0 ${activeMobileTab === 'calendar' ? 'flex' : 'hidden md:flex'}`}>
+          <div className={`flex-1 md:h-full w-full flex flex-col gap-2.5 sm:gap-3 min-w-0 ${activeMobileTab === 'calendar' ? 'flex' : 'hidden md:flex'}`}>
             <CalendarSelector
               calendars={calendars}
               selectedCalendarIds={selectedCalendarIds}
@@ -920,7 +947,31 @@ export default function App() {
               onSelectAll={handleSelectAllCalendars}
               onDeselectAll={handleDeselectAllCalendars}
             />
-            <div className="flex-1 min-h-0">
+            {/* Mobile: compact week indicator + tapped-day detail (full grid is unreadable at phone width) */}
+            <div className="md:hidden">
+              <MobileAgendaView
+                events={visibleCalendarEvents}
+                tasks={tasks}
+                calendars={calendars}
+                onToggleTaskComplete={handleToggleTaskComplete}
+                onEventClick={(ev) => {
+                  setEditingEvent(ev);
+                  setEventModalOpen(true);
+                }}
+                onEditTaskClick={(task) => {
+                  setEditingTask(task);
+                  setTaskModalOpen(true);
+                }}
+                onDateSelect={(startStr, endStr) => {
+                  setEditingEvent(null);
+                  setNewEventStart(startStr);
+                  setNewEventEnd(endStr);
+                  setEventModalOpen(true);
+                }}
+              />
+            </div>
+
+            <div className="hidden md:block flex-1 min-h-0">
               <CalendarView
                 events={visibleCalendarEvents}
                 tasks={tasks}
@@ -970,8 +1021,12 @@ export default function App() {
         event={editingEvent}
         initialStartISO={newEventStart}
         initialEndISO={newEventEnd}
+        initialSummary={schedulingTask?.title}
         calendars={calendars}
-        onClose={() => setEventModalOpen(false)}
+        onClose={() => {
+          setEventModalOpen(false);
+          setSchedulingTask(null);
+        }}
         onSave={handleSaveEvent}
         onDelete={handleDeleteEventClick}
       />

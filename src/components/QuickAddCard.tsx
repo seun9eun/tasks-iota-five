@@ -37,7 +37,7 @@ export const QuickAddCard: React.FC<QuickAddCardProps> = ({
   };
 
   return (
-    <div className="min-w-[280px] sm:min-w-0 snap-center shrink-0 sm:shrink bg-blue-600 rounded-2xl p-3 sm:p-4 text-white flex flex-col justify-between shadow-md shadow-blue-600/15 hover:shadow-lg transition">
+    <div className="col-span-2 sm:col-span-1 bg-blue-600 rounded-2xl p-3 sm:p-4 text-white flex flex-col justify-between shadow-md shadow-blue-600/15 hover:shadow-lg transition">
       <div className="flex items-center justify-between mb-1">
         <span className="text-[11px] sm:text-xs font-bold text-blue-100 uppercase tracking-wider flex items-center gap-1.5">
           <PlusCircle className="w-3.5 h-3.5 text-blue-200" />
