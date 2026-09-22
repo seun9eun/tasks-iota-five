@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { AuthUser, GoogleTask, GoogleTaskList, GoogleCalendarEvent, GoogleCalendarListEntry, QuickShortcut } from './types';
+import { AuthUser, GoogleTask, GoogleTaskList, GoogleCalendarEvent, GoogleCalendarListEntry, QuickShortcut, TASK_EVENT_ID_PREFIX } from './types';
 import { DEFAULT_SHORTCUTS } from './components/QuickShortcuts';
 import { initAuth, googleSignIn, logout, clearStoredAuth } from './lib/auth';
 import {
@@ -514,12 +514,45 @@ export default function App() {
     }
   };
 
+  // A due task is drawn on the calendar as a synthetic all-day marker rather than
+  // a real event, so dragging it moves the task's due date. Google Tasks stores a
+  // due date without a usable time, so only the day the marker lands on matters.
+  const handleTaskDueDateChange = async (taskId: string, newStartISO: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const newDueYMD = getKoreaTodayYYYYMMDD(newStartISO);
+    if (getKoreaTodayYYYYMMDD(task.due) === newDueYMD) return;
+
+    const newDue = `${newDueYMD}T00:00:00.000Z`;
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, due: newDue } : t)));
+
+    if (isAuthenticated && accessToken) {
+      try {
+        const targetListId =
+          task.tasklistId ||
+          (selectedListId === 'all-lists' ? taskLists[0]?.id || '@default' : selectedListId);
+        await updateTaskApi(accessToken, targetListId, taskId, { due: newDue });
+        showToast(`'${task.title}' 마감일을 옮겼습니다.`, 'success');
+      } catch (err: any) {
+        showToast('할 일 마감일 변경에 실패했습니다.', 'error');
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, due: task.due } : t)));
+      }
+    } else {
+      showToast(`'${task.title}' 마감일을 옮겼습니다.`, 'success');
+    }
+  };
+
   // Calendar Event: Drag / Resize Time change
   const handleEventChangeTime = async (
     eventId: string,
     newStartISO: string,
     newEndISO: string
   ) => {
+    if (eventId.startsWith(TASK_EVENT_ID_PREFIX)) {
+      return handleTaskDueDateChange(eventId.slice(TASK_EVENT_ID_PREFIX.length), newStartISO);
+    }
+
     const targetEv = calendarEvents.find((e) => e.id === eventId);
     const targetCalId = targetEv?.calendarId || 'primary';
 

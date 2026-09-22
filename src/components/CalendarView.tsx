@@ -3,7 +3,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { GoogleCalendarEvent, GoogleTask, GoogleCalendarListEntry } from '../types';
+import { GoogleCalendarEvent, GoogleTask, GoogleCalendarListEntry, TASK_EVENT_ID_PREFIX } from '../types';
 import { getKoreaTodayYYYYMMDD } from '../utils/dateUtils';
 import { CheckSquare, Square, CheckCircle2 } from 'lucide-react';
 
@@ -102,7 +102,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       const dueDayStr = getKoreaTodayYYYYMMDD(task.due);
 
       return {
-        id: `task-event-${task.id}`,
+        id: `${TASK_EVENT_ID_PREFIX}${task.id}`,
         title: task.title,
         start: dueDayStr,
         allDay: true,

@@ -1,3 +1,6 @@
+/** Id prefix for the synthetic calendar marker drawn for a task's due date. */
+export const TASK_EVENT_ID_PREFIX = 'task-event-';
+
 export interface GoogleTask {
   id: string;
   title: string;
