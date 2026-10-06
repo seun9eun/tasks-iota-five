@@ -188,7 +188,7 @@ export const PrefixManagerModal: React.FC<PrefixManagerModalProps> = ({
           <button
             type="button"
             onClick={handleSaveList}
-            className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition cursor-pointer active:scale-95"
+            className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition cursor-pointer active:scale-95"
           >
             저장하기
           </button>

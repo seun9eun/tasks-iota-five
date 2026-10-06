@@ -39,7 +39,7 @@ export const QuickAddCard: React.FC<QuickAddCardProps> = ({
   // On a phone this is one input line on the page ground; from sm: up it becomes
   // the blue tile that anchors the top row of the dashboard.
   return (
-    <div className="col-span-2 sm:col-span-1 sm:bg-blue-600 sm:rounded-2xl sm:p-4 sm:text-white sm:shadow-md sm:shadow-blue-600/15 sm:hover:shadow-lg flex flex-col justify-between transition">
+    <div className="col-span-2 sm:col-span-1 sm:bg-blue-600 sm:rounded-2xl sm:p-4 sm:text-white flex flex-col justify-between transition">
       <div className="hidden sm:flex items-center justify-between mb-1">
         <span className="text-xs font-bold text-blue-100 uppercase tracking-wider flex items-center gap-1.5">
           <PlusCircle className="w-3.5 h-3.5 text-blue-200" />
@@ -77,7 +77,7 @@ export const QuickAddCard: React.FC<QuickAddCardProps> = ({
           placeholder="새 할 일 입력... (Enter)"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 min-w-0 rounded-xl px-2.5 py-2 sm:py-1.5 text-xs font-medium transition bg-white border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 sm:bg-blue-700/60 sm:border-blue-400/40 sm:text-white sm:placeholder-blue-200/80 sm:focus:bg-blue-700 sm:focus:border-white sm:shadow-inner"
+          className="flex-1 min-w-0 rounded-xl px-2.5 py-2 sm:py-1.5 text-xs font-medium transition bg-white border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 sm:bg-blue-700/60 sm:border-blue-400/40 sm:text-white sm:placeholder-blue-200/80 sm:focus:bg-blue-700 sm:focus:border-white"
         />
         <button
           type="button"

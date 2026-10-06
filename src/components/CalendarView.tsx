@@ -67,21 +67,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       start: startStr,
       end: endStr,
       allDay: isAllDay,
-      backgroundColor: isTask
-        ? isCompleted
-          ? '#ecfdf5' // emerald-50
-          : '#f0f9ff' // blue-50
-        : eventColor,
-      borderColor: isTask
-        ? isCompleted
-          ? '#10b981'
-          : '#3b82f6'
-        : eventColor,
-      textColor: isTask
-        ? isCompleted
-          ? '#047857'
-          : '#1d4ed8'
-        : '#ffffff',
+      backgroundColor: isTask ? (isCompleted ? '#10b981' : '#3b82f6') : eventColor,
+      borderColor: isTask ? (isCompleted ? '#10b981' : '#3b82f6') : eventColor,
+      textColor: '#1e293b',
       extendedProps: {
         rawGoogleEvent: ev,
         isTask,
@@ -106,9 +94,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         title: task.title,
         start: dueDayStr,
         allDay: true,
-        backgroundColor: isCompleted ? '#f0fdf4' : '#faf5ff',
+        backgroundColor: isCompleted ? '#22c55e' : '#a855f7',
         borderColor: isCompleted ? '#22c55e' : '#a855f7',
-        textColor: isCompleted ? '#15803d' : '#7e22ce',
+        textColor: '#1e293b',
         extendedProps: {
           isTask: true,
           rawTask: task,
@@ -120,7 +108,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const allFormattedEvents = [...formattedCalendarEvents, ...unlinkedTaskEvents];
 
   return (
-    <div className="flex-1 bg-white p-3.5 md:p-4 rounded-2xl shadow-2xs border border-slate-200 overflow-hidden flex flex-col h-full">
+    <div className="flex-1 bg-white p-3.5 md:p-4 rounded-2xl border border-slate-200 overflow-hidden flex flex-col h-full">
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -154,7 +142,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
           if (isTask && rawTask) {
             return (
-              <div className="flex items-center gap-1.5 px-1 py-0.5 overflow-hidden w-full text-xs font-semibold leading-tight">
+              <div className="flex items-center gap-1 px-0.5 py-0.5 overflow-hidden w-full text-xs font-semibold leading-tight">
+                <span
+                  className="w-[3px] h-3.5 rounded-full shrink-0"
+                  style={{ backgroundColor: eventInfo.event.backgroundColor }}
+                />
                 <button
                   type="button"
                   onClick={(e) => {
@@ -182,8 +174,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           }
 
           return (
-            <div className="flex items-center gap-1 px-1 py-0.5 truncate text-xs font-medium">
-              <span className="truncate">{eventInfo.event.title}</span>
+            <div className="flex items-center gap-1 px-0.5 py-0.5 overflow-hidden w-full text-xs font-medium leading-tight">
+              <span
+                className="w-[3px] h-3.5 rounded-full shrink-0"
+                style={{ backgroundColor: eventInfo.event.backgroundColor }}
+              />
+              {eventInfo.timeText && (
+                <span className="shrink-0 text-[10px] font-semibold text-slate-500 tabular-nums">
+                  {eventInfo.timeText}
+                </span>
+              )}
+              <span className="truncate text-slate-800">{eventInfo.event.title}</span>
             </div>
           );
         }}

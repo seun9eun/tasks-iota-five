@@ -842,13 +842,13 @@ export default function App() {
       {/* Bento Grid Main Container */}
       <div className="md:flex-1 md:min-h-0 p-2.5 sm:p-4 md:overflow-hidden flex flex-col gap-2.5 sm:gap-4">
         {/* Mobile View Navigation Tab Switcher (Shown only on < md screens) */}
-        <div className="flex md:hidden items-center justify-between bg-white p-1 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0 text-xs font-bold">
+        <div className="flex md:hidden items-center justify-between bg-white p-1 rounded-2xl border border-slate-200/90 shrink-0 text-xs font-bold">
           <button
             type="button"
             onClick={() => setActiveMobileTab('tasks')}
             className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer ${
               activeMobileTab === 'tasks'
-                ? 'bg-blue-600 text-white shadow-2xs'
+                ? 'bg-blue-600 text-white'
                 : 'text-slate-600 hover:text-slate-900 bg-transparent'
             }`}
           >
@@ -860,7 +860,7 @@ export default function App() {
             onClick={() => setActiveMobileTab('calendar')}
             className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer ${
               activeMobileTab === 'calendar'
-                ? 'bg-blue-600 text-white shadow-2xs'
+                ? 'bg-blue-600 text-white'
                 : 'text-slate-600 hover:text-slate-900 bg-transparent'
             }`}
           >
@@ -879,7 +879,7 @@ export default function App() {
           />
 
           {/* Bento Metric Card 2: Daily Goal Completion */}
-          <div className="sm:bg-white sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-2xs sm:p-4 flex flex-col justify-between sm:hover:shadow-xs transition">
+          <div className="sm:bg-white sm:rounded-2xl sm:border sm:border-slate-200 sm:p-4 flex flex-col justify-between transition">
             <div className="flex items-center justify-between mb-1 gap-1">
               <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
                 <Target className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -911,7 +911,7 @@ export default function App() {
           </div>
 
           {/* Bento Metric Card 3: Monthly Goal Completion */}
-          <div className="sm:bg-white sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-2xs sm:p-4 flex flex-col justify-between sm:hover:shadow-xs transition">
+          <div className="sm:bg-white sm:rounded-2xl sm:border sm:border-slate-200 sm:p-4 flex flex-col justify-between transition">
             <div className="flex items-center justify-between mb-1 gap-1">
               <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
                 <CalendarIcon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />

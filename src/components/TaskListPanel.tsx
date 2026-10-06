@@ -8,11 +8,15 @@ import {
   isTaskUpcoming,
   formatTaskDueDate,
   getKoreaThisWeekRange,
+  getKoreaTodayYYYYMMDD,
   buildTaskScheduleLookup,
 } from '../utils/dateUtils';
 import {
   CheckSquare,
   Square,
+  CheckCircle2,
+  Circle,
+  ChevronDown,
   Plus,
   GripVertical,
   Clock,
@@ -60,6 +64,15 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
 }) => {
   const [filter, setFilter] = useState<'today' | 'active' | 'week'>('today');
   const [searchQuery, setSearchQuery] = useState('');
+  const [collapsedDays, setCollapsedDays] = useState<Set<string>>(() => new Set());
+
+  const toggleDay = (ymd: string) =>
+    setCollapsedDays((prev) => {
+      const next = new Set(prev);
+      if (next.has(ymd)) next.delete(ymd);
+      else next.add(ymd);
+      return next;
+    });
 
   const draggableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -183,6 +196,37 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
     };
   }, [tasks, todayTasks, overdueTasks, thisWeekTasks, searchQuery, calendarEvents, taskScheduledDateSet]);
 
+  const WEEK_DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
+
+  /** Monday..Sunday of this week, each with the tasks due that day. */
+  const weekDayGroups = useMemo(() => {
+    const { startOfWeekYMD } = getKoreaThisWeekRange();
+    const byDay = new Map<string, GoogleTask[]>();
+    for (const task of filteredThisWeekTasks) {
+      const ymd = getKoreaTodayYYYYMMDD(task.due);
+      const list = byDay.get(ymd);
+      if (list) list.push(task);
+      else byDay.set(ymd, [task]);
+    }
+
+    return Array.from({ length: 7 }, (_, i) => {
+      const [y, m, d] = startOfWeekYMD.split('-').map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+      dt.setUTCDate(dt.getUTCDate() + i);
+      const ymd = dt.toISOString().slice(0, 10);
+      return {
+        ymd,
+        label: `${Number(ymd.slice(5, 7))}월 ${Number(ymd.slice(8, 10))}일`,
+        weekday: WEEK_DAY_LABELS[i],
+        isSaturday: i === 5,
+        isSunday: i === 6,
+        tasks: byDay.get(ymd) || [],
+      };
+    });
+  }, [filteredThisWeekTasks]);
+
+  const todayYMD = getKoreaTodayYYYYMMDD();
+
   // Helper to render task title with custom prefix badge if present
   const renderTaskTitle = (title: string, isCompleted: boolean) => {
     const match = title.match(/^\[([^\]]+)\]\s*(.*)$/);
@@ -276,7 +320,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
         data-id={task.id}
         data-title={task.title}
         data-duration={durationMins}
-        className={`fc-event-item group relative bg-white hover:bg-slate-50/80 border rounded-xl md:rounded-2xl p-2.5 md:p-3 transition md:shadow-2xs md:hover:shadow-xs flex flex-col gap-2 ${
+        className={`fc-event-item group relative bg-white hover:bg-slate-50/80 border rounded-xl md:rounded-2xl p-2.5 md:p-3 transition flex flex-col gap-2 ${
           isCompleted
             ? 'border-slate-200 opacity-60 bg-slate-50/50'
             : isOverdueSection
@@ -302,19 +346,6 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
             <div className="hidden md:block w-5 shrink-0" />
           )}
 
-          {/* Completion Toggle Button */}
-          <button
-            onClick={() => onToggleComplete(task)}
-            className="shrink-0 mt-0.5 text-slate-400 hover:text-blue-600 transition cursor-pointer"
-            title={isCompleted ? '미완료로 변경' : '완료로 표시'}
-          >
-            {isCompleted ? (
-              <CheckSquare className="w-4 h-4 text-emerald-600 fill-emerald-50" />
-            ) : (
-              <Square className="w-4 h-4 text-slate-400 hover:text-blue-600" />
-            )}
-          </button>
-
           {/* Task Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -329,6 +360,19 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
               </p>
             )}
           </div>
+
+          {/* Completion Toggle, on the trailing edge so all rows align */}
+          <button
+            onClick={() => onToggleComplete(task)}
+            className="shrink-0 mt-0.5 p-0.5 text-slate-400 hover:text-blue-600 transition cursor-pointer"
+            title={isCompleted ? '미완료로 변경' : '완료로 표시'}
+          >
+            {isCompleted ? (
+              <CheckCircle2 className="w-[18px] h-[18px] text-emerald-600" />
+            ) : (
+              <Circle className="w-[18px] h-[18px] text-slate-300 hover:text-blue-600" />
+            )}
+          </button>
         </div>
 
         {/* Bottom Row: Duration selector & Actions */}
@@ -383,12 +427,12 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
   };
 
   return (
-    <aside className="w-full md:w-80 lg:w-96 md:bg-white md:rounded-2xl md:border md:border-slate-200 md:shadow-2xs flex flex-col shrink-0 md:h-full md:overflow-hidden">
+    <aside className="w-full md:w-80 lg:w-96 md:bg-white md:rounded-2xl md:border md:border-slate-200 flex flex-col shrink-0 md:h-full md:overflow-hidden">
       {/* Header & List Selector */}
       <div className="pb-3 md:p-4 md:border-b md:border-slate-100 md:bg-slate-50/60 md:shrink-0">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="hidden md:block p-1.5 bg-blue-600 text-white rounded-xl shadow-2xs">
+            <div className="hidden md:block p-1.5 bg-blue-600 text-white rounded-xl">
               <CheckSquare className="w-4 h-4" />
             </div>
             <div>
@@ -486,7 +530,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
             onClick={() => setFilter('today')}
             className={`py-1.5 text-center rounded-lg transition cursor-pointer font-bold truncate px-1 ${
               filter === 'today'
-                ? 'bg-blue-600 text-white shadow-2xs'
+                ? 'bg-slate-900 text-white'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
             title="오늘의 할 일"
@@ -497,7 +541,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
             onClick={() => setFilter('active')}
             className={`py-1.5 text-center rounded-lg transition cursor-pointer font-bold truncate px-1 ${
               filter === 'active'
-                ? 'bg-blue-600 text-white shadow-2xs'
+                ? 'bg-slate-900 text-white'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
             title="미완료 할 일"
@@ -508,7 +552,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
             onClick={() => setFilter('week')}
             className={`py-1.5 text-center rounded-lg transition cursor-pointer font-bold truncate px-1 ${
               filter === 'week'
-                ? 'bg-indigo-600 text-white shadow-2xs'
+                ? 'bg-slate-900 text-white'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
             title="이번 주 전체 할 일"
@@ -610,23 +654,65 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
             </div>
           ) : (
             <div className="space-y-3">
-              {/* This Week Section */}
-              {filteredThisWeekTasks.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between px-1">
-                    <span className="text-[11px] font-bold text-indigo-900 flex items-center gap-1">
-                      <CalendarRange className="w-3.5 h-3.5 text-indigo-600" />
-                      이번 주 할 일 ({filteredThisWeekTasks.length})
-                    </span>
-                    <span className="text-[10px] font-medium text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">
-                      {weekRangeFormatted}
-                    </span>
+              {/* One day per block, Monday through Sunday, in order */}
+              {weekDayGroups.map((day) => {
+                const isCollapsed = collapsedDays.has(day.ymd);
+                const done = day.tasks.filter((t) => t.status === 'completed').length;
+                return (
+                  <div key={day.ymd}>
+                    <button
+                      type="button"
+                      onClick={() => toggleDay(day.ymd)}
+                      className="w-full flex items-baseline gap-2 pb-1.5 border-b border-slate-200 text-left"
+                      aria-expanded={!isCollapsed}
+                    >
+                      <span
+                        className={`text-sm font-extrabold tracking-tight ${
+                          day.ymd === todayYMD ? 'text-slate-900' : 'text-slate-700'
+                        }`}
+                      >
+                        {day.label}
+                      </span>
+                      {day.ymd === todayYMD && (
+                        <span className="text-[10px] font-bold text-white bg-slate-900 px-1.5 py-0.5 rounded-full">
+                          오늘
+                        </span>
+                      )}
+                      <span className="flex-1" />
+                      {day.tasks.length > 0 && (
+                        <span className="text-[10px] font-semibold text-slate-400 tabular-nums">
+                          {done}/{day.tasks.length}
+                        </span>
+                      )}
+                      <span
+                        className={`text-xs font-bold ${
+                          day.isSunday
+                            ? 'text-red-500'
+                            : day.isSaturday
+                            ? 'text-blue-500'
+                            : 'text-slate-400'
+                        }`}
+                      >
+                        {day.weekday}
+                      </span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
+                          isCollapsed ? '-rotate-90' : ''
+                        }`}
+                      />
+                    </button>
+
+                    {!isCollapsed &&
+                      (day.tasks.length === 0 ? (
+                        <p className="text-[11px] text-slate-300 py-2 px-1">비어 있음</p>
+                      ) : (
+                        <div className="space-y-2 pt-2">
+                          {day.tasks.map((t) => renderTaskCard(t, false))}
+                        </div>
+                      ))}
                   </div>
-                  <div className="space-y-2">
-                    {filteredThisWeekTasks.map((t) => renderTaskCard(t, false))}
-                  </div>
-                </div>
-              )}
+                );
+              })}
 
               {/* Overdue Section */}
               {filteredOverdueTasks.length > 0 && (

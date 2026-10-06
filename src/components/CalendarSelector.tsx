@@ -75,7 +75,7 @@ export const CalendarSelector: React.FC<CalendarSelectorProps> = ({
                 onClick={() => onToggleCalendar(cal.id)}
                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer select-none active:scale-95 ${
                   isChecked
-                    ? 'bg-white border-slate-300 text-slate-800 shadow-2xs hover:border-slate-400'
+                    ? 'bg-white border-slate-300 text-slate-800 hover:border-slate-400'
                     : 'bg-slate-100/70 border-slate-200 text-slate-400 line-through hover:bg-slate-100'
                 }`}
               >

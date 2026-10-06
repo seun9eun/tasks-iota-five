@@ -147,7 +147,7 @@ export const MobileAgendaView: React.FC<MobileAgendaViewProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col">
+    <div className="bg-white rounded-2xl border border-slate-200 flex flex-col">
       {/* Week navigation */}
       <div className="flex items-center justify-between gap-2 p-3 border-b border-slate-100">
         <button
@@ -193,42 +193,29 @@ export const MobileAgendaView: React.FC<MobileAgendaViewProps> = ({
               type="button"
               onClick={() => setSelectedYMD(ymd)}
               className={`flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition ${
-                isSelected
-                  ? 'bg-blue-600 text-white'
-                  : isToday
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-slate-600 active:bg-slate-100'
+                isSelected ? 'bg-slate-100' : 'active:bg-slate-100'
               }`}
             >
               <span
                 className={`text-[10px] font-semibold ${
-                  isSelected
-                    ? 'text-blue-100'
-                    : i === 6
-                    ? 'text-red-500'
-                    : i === 5
-                    ? 'text-blue-500'
-                    : ''
+                  i === 6 ? 'text-red-500' : i === 5 ? 'text-blue-500' : 'text-slate-500'
                 }`}
               >
                 {WEEKDAY_LABELS[i]}
               </span>
-              <span className="text-sm font-extrabold leading-none">{Number(ymd.slice(8, 10))}</span>
+              <span
+                className={`text-sm font-extrabold leading-none w-6 h-6 flex items-center justify-center rounded-full ${
+                  isToday ? 'bg-slate-900 text-white' : 'text-slate-800'
+                }`}
+              >
+                {Number(ymd.slice(8, 10))}
+              </span>
               <span className="flex items-center gap-0.5 h-1.5">
                 {Array.from({ length: Math.min(count, 3) }).map((_, d) => (
-                  <span
-                    key={d}
-                    className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-blue-500'}`}
-                  />
+                  <span key={d} className="w-1 h-1 rounded-full bg-slate-400" />
                 ))}
                 {count > 3 && (
-                  <span
-                    className={`text-[8px] font-bold leading-none ${
-                      isSelected ? 'text-white' : 'text-blue-500'
-                    }`}
-                  >
-                    +
-                  </span>
+                  <span className="text-[8px] font-bold leading-none text-slate-400">+</span>
                 )}
               </span>
             </button>
@@ -268,7 +255,7 @@ export const MobileAgendaView: React.FC<MobileAgendaViewProps> = ({
                   className="w-full flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-white text-left active:bg-slate-50 cursor-pointer"
                 >
                   <span
-                    className="w-1 self-stretch rounded-full shrink-0"
+                    className="w-[3px] self-stretch rounded-full shrink-0"
                     style={{ backgroundColor: item.color }}
                   />
                   <span className="text-[11px] font-bold text-slate-500 w-11 shrink-0 tabular-nums">

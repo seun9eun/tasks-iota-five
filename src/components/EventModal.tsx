@@ -250,7 +250,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-xs transition cursor-pointer"
+                className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl transition cursor-pointer"
               >
                 {event ? '수정 저장' : '등록하기'}
               </button>

@@ -25,10 +25,10 @@ export const Header: React.FC<HeaderProps> = ({
   onRefresh,
 }) => {
   return (
-    <header className="bg-white border-b border-slate-200/80 px-4 sm:px-6 py-2 sm:py-3.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-xs z-20">
+    <header className="bg-white border-b border-slate-200/80 px-4 sm:px-6 py-2 sm:py-3.5 flex flex-wrap items-center justify-between gap-2 shrink-0 z-20">
       {/* Title & Logo */}
       <div className="app-title flex items-center gap-2.5 sm:gap-3">
-        <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 shrink-0">
+        <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shrink-0">
           <div className="relative">
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
             <CheckSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3 absolute -bottom-1 -right-1 text-blue-200 bg-blue-700 rounded-xs" />
@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
         ) : (
           <button
             onClick={onSignIn}
-            className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-2xs hover:shadow-xs px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer active:scale-98"
+            className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer active:scale-98"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
