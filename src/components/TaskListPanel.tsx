@@ -671,17 +671,6 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
                       >
                         {day.label}
                       </span>
-                      {isToday && (
-                        <span className="text-[10px] font-bold text-white bg-slate-900 px-1.5 py-0.5 rounded-full">
-                          오늘
-                        </span>
-                      )}
-                      <span className="flex-1" />
-                      {day.tasks.length > 0 && (
-                        <span className="text-[11px] font-semibold text-slate-400 tabular-nums">
-                          {day.isPast ? `${done}개 완료` : `${done}/${day.tasks.length}`}
-                        </span>
-                      )}
                       <span
                         className={`text-base font-bold ${
                           day.isSunday
@@ -693,6 +682,17 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
                       >
                         {day.weekday}
                       </span>
+                      {isToday && (
+                        <span className="text-[10px] font-bold text-white bg-slate-900 px-1.5 py-0.5 rounded-full">
+                          오늘
+                        </span>
+                      )}
+                      <span className="flex-1" />
+                      {day.tasks.length > 0 && (
+                        <span className="text-[11px] font-semibold text-slate-400 tabular-nums">
+                          {day.isPast ? `${done}개 완료` : `${done}/${day.tasks.length}`}
+                        </span>
+                      )}
                     </div>
 
                     {day.tasks.length === 0 ? (
