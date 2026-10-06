@@ -311,8 +311,6 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
   const renderTaskCard = (task: GoogleTask, isOverdueSection: boolean = false) => {
     const isCompleted = task.status === 'completed';
     const durationMins = task.durationMinutes || 60;
-    const isToday = isTaskDueToday(task, calendarEvents, taskScheduledDateSet);
-    const isUpcoming = isTaskUpcoming(task);
 
     return (
       <div
@@ -320,16 +318,12 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
         data-id={task.id}
         data-title={task.title}
         data-duration={durationMins}
-        className={`fc-event-item group relative bg-white hover:bg-slate-50/80 border rounded-xl md:rounded-2xl p-2.5 md:p-3 transition flex flex-col gap-2 ${
+        className={`fc-event-item group relative bg-white hover:bg-slate-50/80 border border-slate-200 rounded-xl md:rounded-2xl p-2.5 md:p-3 transition flex flex-col gap-2 ${
           isCompleted
-            ? 'border-slate-200 opacity-60 bg-slate-50/50'
+            ? 'opacity-60 bg-slate-50/50'
             : isOverdueSection
-            ? 'border-amber-200 bg-amber-50/30 hover:border-amber-400'
-            : isToday
-            ? 'border-blue-200 hover:border-blue-400'
-            : isUpcoming
-            ? 'border-purple-200/70 hover:border-purple-400'
-            : 'border-slate-200 hover:border-slate-300'
+            ? 'border-l-[3px] border-l-amber-400'
+            : 'hover:border-slate-300'
         }`}
       >
         {/* Top Row: Drag Handle, Completion Checkbox, Title */}
