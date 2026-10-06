@@ -16,7 +16,6 @@ import {
   Square,
   CheckCircle2,
   Circle,
-  ChevronDown,
   Plus,
   GripVertical,
   Clock,
@@ -64,15 +63,7 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
 }) => {
   const [filter, setFilter] = useState<'today' | 'active' | 'week'>('today');
   const [searchQuery, setSearchQuery] = useState('');
-  const [collapsedDays, setCollapsedDays] = useState<Set<string>>(() => new Set());
-
-  const toggleDay = (ymd: string) =>
-    setCollapsedDays((prev) => {
-      const next = new Set(prev);
-      if (next.has(ymd)) next.delete(ymd);
-      else next.add(ymd);
-      return next;
-    });
+  const todaySectionRef = useRef<HTMLDivElement>(null);
 
   const draggableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -198,19 +189,28 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
 
   const WEEK_DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 
-  /** Monday..Sunday of this week, each with the tasks due that day. */
+  const todayYMD = getKoreaTodayYYYYMMDD();
+
+  /**
+   * This week, day by day. A day that has already passed shows what was
+   * actually finished on it — anything left open moved to 지난 미완료, so it is
+   * listed once rather than in both places. Empty days are dropped (a weekend
+   * with work on it is an ordinary day and still shows); today always stays,
+   * since it is what the view scrolls to.
+   */
   const weekDayGroups = useMemo(() => {
     const { startOfWeekYMD } = getKoreaThisWeekRange();
     const byDay = new Map<string, GoogleTask[]>();
     for (const task of filteredThisWeekTasks) {
       const ymd = getKoreaTodayYYYYMMDD(task.due);
+      if (ymd < todayYMD && task.status !== 'completed') continue;
       const list = byDay.get(ymd);
       if (list) list.push(task);
       else byDay.set(ymd, [task]);
     }
 
+    const [y, m, d] = startOfWeekYMD.split('-').map(Number);
     return Array.from({ length: 7 }, (_, i) => {
-      const [y, m, d] = startOfWeekYMD.split('-').map(Number);
       const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
       dt.setUTCDate(dt.getUTCDate() + i);
       const ymd = dt.toISOString().slice(0, 10);
@@ -220,12 +220,21 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
         weekday: WEEK_DAY_LABELS[i],
         isSaturday: i === 5,
         isSunday: i === 6,
+        isPast: ymd < todayYMD,
         tasks: byDay.get(ymd) || [],
       };
-    });
-  }, [filteredThisWeekTasks]);
+    }).filter((day) => day.tasks.length > 0 || day.ymd === todayYMD);
+  }, [filteredThisWeekTasks, todayYMD]);
 
-  const todayYMD = getKoreaTodayYYYYMMDD();
+  // Opening the week should land on today, not on Monday. The days above stay
+  // in place to scroll back to; they are just not what you came for.
+  useEffect(() => {
+    if (filter !== 'week') return;
+    const frame = requestAnimationFrame(() => {
+      todaySectionRef.current?.scrollIntoView({ block: 'start' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [filter]);
 
   // Helper to render task title with custom prefix badge if present
   const renderTaskTitle = (title: string, isCompleted: boolean) => {
@@ -650,36 +659,31 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
             <div className="space-y-3">
               {/* One day per block, Monday through Sunday, in order */}
               {weekDayGroups.map((day) => {
-                const isCollapsed = collapsedDays.has(day.ymd);
+                const isToday = day.ymd === todayYMD;
                 const done = day.tasks.filter((t) => t.status === 'completed').length;
                 return (
-                  <div key={day.ymd}>
-                    <button
-                      type="button"
-                      onClick={() => toggleDay(day.ymd)}
-                      className="w-full flex items-baseline gap-2 pb-1.5 border-b border-slate-200 text-left"
-                      aria-expanded={!isCollapsed}
-                    >
+                  <div key={day.ymd} ref={isToday ? todaySectionRef : undefined} className="scroll-mt-2">
+                    <div className="flex items-baseline gap-2 pb-1.5 border-b border-slate-200">
                       <span
-                        className={`text-sm font-extrabold tracking-tight ${
-                          day.ymd === todayYMD ? 'text-slate-900' : 'text-slate-700'
+                        className={`text-base font-extrabold tracking-tight ${
+                          isToday ? 'text-slate-900' : 'text-slate-600'
                         }`}
                       >
                         {day.label}
                       </span>
-                      {day.ymd === todayYMD && (
+                      {isToday && (
                         <span className="text-[10px] font-bold text-white bg-slate-900 px-1.5 py-0.5 rounded-full">
                           오늘
                         </span>
                       )}
                       <span className="flex-1" />
                       {day.tasks.length > 0 && (
-                        <span className="text-[10px] font-semibold text-slate-400 tabular-nums">
-                          {done}/{day.tasks.length}
+                        <span className="text-[11px] font-semibold text-slate-400 tabular-nums">
+                          {day.isPast ? `${done}개 완료` : `${done}/${day.tasks.length}`}
                         </span>
                       )}
                       <span
-                        className={`text-xs font-bold ${
+                        className={`text-base font-bold ${
                           day.isSunday
                             ? 'text-red-500'
                             : day.isSaturday
@@ -689,21 +693,15 @@ export const TaskListPanel: React.FC<TaskListPanelProps> = ({
                       >
                         {day.weekday}
                       </span>
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
-                          isCollapsed ? '-rotate-90' : ''
-                        }`}
-                      />
-                    </button>
+                    </div>
 
-                    {!isCollapsed &&
-                      (day.tasks.length === 0 ? (
-                        <p className="text-[11px] text-slate-300 py-2 px-1">비어 있음</p>
-                      ) : (
-                        <div className="space-y-2 pt-2">
-                          {day.tasks.map((t) => renderTaskCard(t, false))}
-                        </div>
-                      ))}
+                    {day.tasks.length === 0 ? (
+                      <p className="text-[11px] text-slate-300 py-2 px-1">비어 있음</p>
+                    ) : (
+                      <div className="space-y-2 pt-2">
+                        {day.tasks.map((t) => renderTaskCard(t, false))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
